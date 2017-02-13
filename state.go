@@ -61,6 +61,10 @@ func state(containerID string) error {
 		return err
 	}
 	if running == false {
+		if err := updateStoppedContainer(podStatus); err != nil {
+			return err
+		}
+
 		state.Status = "stopped"
 	}
 
