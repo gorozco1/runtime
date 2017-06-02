@@ -1,0 +1,14 @@
+Source: cc-runtime
+Section: devel
+Priority: optional
+Maintainer: clearlinux.org team <dev@lists.clearlinux.org>
+Standards-Version: 3.9.6
+Homepage: https://clearlinux.org/features/clear-containers
+Build-Depends: debhelper (>= 9), git, ca-certificates, dh-modaliases, execstack, devscripts, dh-make
+
+Package: cc-runtime
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, qemu-lite, clear-containers-image, linux-container
+Description:
+ An Open Containers Initiative (OCI) "runtime" that launches an Intel VT-x secured Clear Containers 2.1 hypervisor, rather than a standard Linux container.
+
