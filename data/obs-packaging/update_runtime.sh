@@ -9,14 +9,16 @@ set -x
 AUTHOR=${AUTHOR:-$(git config user.name)}
 AUTHOR_EMAIL=${AUTHOR_EMAIL:-$(git config user.email)}
 
-VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))
+DEFAULT_VERSION=$(git describe --tags $(git rev-list --tags --max-count=1))
+VERSION=${1:-$DEFAULT_VERSION}
+VERSION_DEB_TRANSFORM=$(echo $VERSION | tr -d '-')
 hash_tag=$(git log --oneline --pretty="%H %d" --decorate --tags --no-walk | grep $VERSION| awk '{print $1}')
 short_hashtag="${hash_tag:0:7}"
 # If there is no tag matching $VERSION we'll get $VERSION as the reference
 [ -z "$hash_tag" ] && hash_tag=$VERSION || :
 
 OBS_PUSH=${OBS_PUSH:-false}
-OBS_RUNTIME_REPO=${OBS_RUNTIME_REPO:-home:erick0zcr/cc-runtime}
+OBS_RUNTIME_REPO=${OBS_RUNTIME_REPO:-home:clearcontainers:clear-containers-3-staging/cc-runtime}
 
 GO_VERSION=${GO_VERSION:-"1.8.3"}
 
@@ -39,8 +41,7 @@ function changelog_update {
 changelog_update $VERSION
 
 sed -e "s/@VERSION@/$VERSION/g;" -e "s/@GO_VERSION@/$GO_VERSION/g;" cc-runtime.spec-template > cc-runtime.spec
-sed -e "s/@VERSION@/$VERSION/g;" -e "s/@HASH_TAG@/$short_hashtag/g;" cc-runtime.dsc-template > cc-runtime.dsc
-sed -e "s/@VERSION@/$VERSION/g;" -e "s/@HASH_TAG@/$short_hashtag/g;" debian.rules-template > debian.rules
+sed -e "s/@VERSION@/$VERSION/g;" -e "s/@HASH_TAG@/$short_hashtag/g;" -e "s/@VERSION_DEB_TRANSFORM@/$VERSION_DEB_TRANSFORM/g;" cc-runtime.dsc-template > cc-runtime.dsc
 sed "s/@VERSION@/$VERSION/g;" _service-template > _service
 
 # Update and package OBS
@@ -52,7 +53,6 @@ then
     mv cc-runtime.spec \
         cc-runtime.dsc \
         _service \
-        debian.rules \
         $TMPDIR
     rm $TMPDIR/*.patch
     cp debian.changelog \
@@ -60,6 +60,7 @@ then
         debian.control \
         debian.postinst \
         debian.series \
+        debian.rules \
         *.patch \
         $TMPDIR
     cd $TMPDIR
