@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+include /usr/share/dpkg/default.mk
+export DH_VERBOSE = 1
+export DH_GOPKG:=github.com/gorozco1/runtime
+export DEB_BUILD_OPTIONS=nocheck
+export PATH=$PATH:/usr/local/go/bin
+export GOPATH=/usr/src/packages/BUILD/go
+%:
+	dh $@
+
+override_dh_auto_build:
+	mkdir -p /usr/src/packages/BUILD/go/src/github.com/gorozco1/
+	tar xzf /usr/src/packages/SOURCES/go1.8.3.linux-amd64.tar.gz -C /usr/local
+	ln -s /usr/src/packages/BUILD/ /usr/src/packages/BUILD/go/src/github.com/gorozco1/runtime
+	make
+
+override_dh_auto_build:
+	make V=1
+
+override_dh_auto_clean:
+
+override_dh_auto_install:
+	dh_auto_install
+
